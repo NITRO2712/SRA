@@ -1,0 +1,100 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="card-header-flex">
+  <div>
+    <h1 style="font-size: 1.8rem; font-weight: 800;">Subject Management</h1>
+    <p style="color: var(--text-muted); font-size: 0.9rem;">Configure subjects, credit weights, and maximum evaluation marks</p>
+  </div>
+  <button class="btn btn-primary" onclick="toggleAddSubjectModal()"><i class="fa-solid fa-plus"></i> Add New Subject</button>
+</div>
+
+<!-- SUBJECTS LIST TABLE -->
+<div class="glass-card">
+  <div class="table-responsive">
+    <table class="custom-table">
+      <thead>
+        <tr>
+          <th>Subject Code</th>
+          <th>Subject Name</th>
+          <th>Internal Max</th>
+          <th>External Max</th>
+          <th>Total Max</th>
+          <th>Credits</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for subject in subjects %}
+        <tr>
+          <td><code style="color: #67e8f9; font-weight: 700;">{{ subject.subject_code }}</code></td>
+          <td><strong>{{ subject.subject_name }}</strong></td>
+          <td>{{ subject.internal_max }}</td>
+          <td>{{ subject.external_max }}</td>
+          <td><strong>{{ subject.max_marks }}</strong></td>
+          <td><span class="badge" style="background: rgba(139, 92, 246, 0.2); color: #c084fc;">{{ subject.credits }} Credits</span></td>
+          <td>
+            <form action="{{ url_for('delete_subject', subject_code=subject.subject_code) }}" method="POST" onsubmit="return confirm('Deleting a subject will remove associated marks! Proceed?');" style="display: inline;">
+              <button type="submit" class="btn btn-danger btn-sm" title="Delete Subject"><i class="fa-solid fa-trash-can"></i> Delete</button>
+            </form>
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 2rem;">No subjects configured in system.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ADD SUBJECT MODAL -->
+<div id="addSubjectModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); z-index: 2000; align-items: center; justify-content: center;">
+  <div class="glass-card" style="width: 100%; max-width: 500px; margin: 0 1rem; background: #121829; border-color: rgba(99, 102, 241, 0.4);">
+    <div class="card-header-flex" style="margin-bottom: 1rem;">
+      <h3 class="card-title"><i class="fa-solid fa-book-medical"></i> Add New Subject</h3>
+      <button onclick="toggleAddSubjectModal()" style="background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer;">&times;</button>
+    </div>
+
+    <form action="{{ url_for('add_subject') }}" method="POST">
+      <div class="form-group">
+        <label class="form-label">Subject Code</label>
+        <input type="text" name="subject_code" class="form-control" placeholder="e.g. KCS-406" required style="text-transform: uppercase;">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Subject Name</label>
+        <input type="text" name="subject_name" class="form-control" placeholder="e.g. Web Technology" required>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Internal Max</label>
+          <input type="number" name="internal_max" class="form-control" value="30" min="1" max="100" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">External Max</label>
+          <input type="number" name="external_max" class="form-control" value="70" min="1" max="100" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Credits</label>
+          <input type="number" name="credits" class="form-control" value="4" min="1" max="6" required>
+        </div>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 1.5rem;">
+        <button type="button" class="btn btn-secondary" onclick="toggleAddSubjectModal()">Cancel</button>
+        <button type="submit" class="btn btn-primary">Save Subject</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  function toggleAddSubjectModal() {
+    const modal = document.getElementById('addSubjectModal');
+    modal.style.display = modal.style.display === 'none' || modal.style.display === '' ? 'flex' : 'none';
+  }
+</script>
+{% endblock %}

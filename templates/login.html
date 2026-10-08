@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login | Student Result Analyzer</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="login-body">
+
+  <div class="login-card">
+    <div style="text-align: center; margin-bottom: 2rem;">
+      <div class="brand-icon" style="margin: 0 auto 1rem; width: 56px; height: 56px; font-size: 1.8rem;">
+        <i class="fa-solid fa-graduation-cap"></i>
+      </div>
+      <h2 style="font-size: 1.6rem; color: white;">Student Result Analyzer</h2>
+      <p style="color: var(--text-muted); font-size: 0.88rem; margin-top: 4px;">Ajay Kumar Garg Engineering College</p>
+    </div>
+
+    <!-- FLASH MESSAGES -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }}">
+            <span>{{ message }}</span>
+            <button class="alert-close" onclick="this.parentElement.remove()">&times;</button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <div class="login-tabs">
+      <button class="tab-btn active" id="btnStaffTab" onclick="switchTab('staff')"><i class="fa-solid fa-user-shield"></i> Teacher / Admin</button>
+      <button class="tab-btn" id="btnStudentTab" onclick="switchTab('student')"><i class="fa-solid fa-user-graduate"></i> Student Lookup</button>
+    </div>
+
+    <!-- STAFF LOGIN FORM -->
+    <form id="staffForm" action="{{ url_for('login') }}" method="POST">
+      <input type="hidden" name="login_type" value="staff">
+      <div class="form-group">
+        <label class="form-label"><i class="fa-solid fa-user"></i> Username</label>
+        <input type="text" name="username" class="form-control" placeholder="Enter username (e.g. admin)" required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label"><i class="fa-solid fa-lock"></i> Password</label>
+        <input type="password" name="password" class="form-control" placeholder="Enter password" required>
+      </div>
+
+      <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 0.5rem; padding: 0.85rem;">
+        <i class="fa-solid fa-right-to-bracket"></i> Login as Staff
+      </button>
+
+      <div style="margin-top: 1.5rem; font-size: 0.82rem; color: var(--text-dim); text-align: center;">
+        Default Credentials: <code>admin</code> / <code>admin123</code> or <code>teacher</code> / <code>teacher123</code>
+      </div>
+    </form>
+
+    <!-- STUDENT LOGIN FORM -->
+    <form id="studentForm" action="{{ url_for('login') }}" method="POST" style="display: none;">
+      <input type="hidden" name="login_type" value="student">
+      <div class="form-group">
+        <label class="form-label"><i class="fa-solid fa-id-card"></i> University Roll Number</label>
+        <input type="text" name="username" class="form-control" placeholder="e.g. 2500270120126" required>
+      </div>
+
+      <button type="submit" class="btn btn-success" style="width: 100%; margin-top: 0.5rem; padding: 0.85rem;">
+        <i class="fa-solid fa-magnifying-glass"></i> View Grade Card
+      </button>
+
+      <div style="margin-top: 1.5rem; font-size: 0.82rem; color: var(--text-dim); text-align: center;">
+        Students can view their individual result card directly using Roll Number.
+      </div>
+    </form>
+  </div>
+
+  <script>
+    function switchTab(type) {
+      const staffForm = document.getElementById('staffForm');
+      const studentForm = document.getElementById('studentForm');
+      const btnStaff = document.getElementById('btnStaffTab');
+      const btnStudent = document.getElementById('btnStudentTab');
+
+      if (type === 'staff') {
+        staffForm.style.display = 'block';
+        studentForm.style.display = 'none';
+        btnStaff.classList.add('active');
+        btnStudent.classList.remove('active');
+      } else {
+        staffForm.style.display = 'none';
+        studentForm.style.display = 'block';
+        btnStudent.classList.add('active');
+        btnStaff.classList.remove('active');
+      }
+    }
+  </script>
+</body>
+</html>

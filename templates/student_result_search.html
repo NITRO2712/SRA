@@ -1,0 +1,24 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div style="max-width: 550px; margin: 3rem auto;">
+  <div class="glass-card" style="text-align: center; padding: 2.5rem 2rem;">
+    <div class="brand-icon" style="margin: 0 auto 1.25rem; width: 60px; height: 60px; font-size: 2rem;">
+      <i class="fa-solid fa-id-card"></i>
+    </div>
+    <h2 style="font-size: 1.6rem; color: white;">Student Result Lookup</h2>
+    <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 4px; margin-bottom: 2rem;">
+      Enter your University Roll Number to view and print your Grade Card
+    </p>
+
+    <form action="{{ url_for('student_result') }}" method="GET">
+      <div class="form-group" style="margin-bottom: 1.5rem;">
+        <input type="text" name="roll_no" class="form-control" placeholder="e.g. 2500270120126" value="{{ searched_roll if searched_roll else '' }}" required style="font-size: 1.1rem; text-align: center; padding: 0.9rem;">
+      </div>
+      <button type="submit" class="btn btn-primary" style="width: 100%; padding: 0.85rem; font-size: 1rem;">
+        <i class="fa-solid fa-magnifying-glass"></i> View Grade Card
+      </button>
+    </form>
+  </div>
+</div>
+{% endblock %}

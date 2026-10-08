@@ -1,0 +1,106 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div style="margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center;" class="btn-print">
+  <a href="{{ url_for('rank_list') }}" class="btn btn-secondary"><i class="fa-solid fa-arrow-left"></i> Back to Ranks</a>
+  <button onclick="window.print()" class="btn btn-success"><i class="fa-solid fa-print"></i> Print / Save as PDF</button>
+</div>
+
+{% if result %}
+<div class="grade-card-container">
+  <!-- HEADER -->
+  <div class="grade-card-header">
+    <div class="college-logo-title">
+      <div style="width: 50px; height: 50px; background: #1e3a8a; border-radius: 10px; color: white; display: flex; align-items: center; justify-content: center; font-size: 1.8rem;">
+        <i class="fa-solid fa-building-columns"></i>
+      </div>
+      <div class="college-title">
+        <h2>AJAY KUMAR GARG ENGINEERING COLLEGE</h2>
+        <p>Dr. A.P.J. Abdul Kalam Technical University, Lucknow • Dept of CSE</p>
+      </div>
+    </div>
+    <div style="text-align: right;">
+      <div style="font-size: 1.1rem; font-weight: 800; color: #1e3a8a;">OFFICIAL GRADE CARD</div>
+      <div style="font-size: 0.8rem; color: #64748b;">Academic Session 2025-26</div>
+    </div>
+  </div>
+
+  <!-- STUDENT METADATA -->
+  <div class="student-meta-grid">
+    <div class="meta-item"><span class="label">Student Name:</span> <span class="value">{{ result.name }}</span></div>
+    <div class="meta-item"><span class="label">Roll Number:</span> <span class="value"><code>{{ result.roll_no }}</code></span></div>
+    <div class="meta-item"><span class="label">Branch / Course:</span> <span class="value">{{ result.branch }} (B.Tech)</span></div>
+    <div class="meta-item"><span class="label">Semester:</span> <span class="value">Semester {{ result.semester }}</span></div>
+    <div class="meta-item"><span class="label">Class Rank:</span> <span class="value" style="color: #1e40af;">Rank #{{ result.rank }}</span></div>
+    <div class="meta-item"><span class="label">Result Status:</span> 
+      <span class="value" style="color: {{ '#059669' if result.overall_status == 'Pass' else '#dc2626' }}; font-weight: 800;">
+        {{ result.overall_status }}
+      </span>
+    </div>
+  </div>
+
+  <!-- MARKS TABLE -->
+  <table class="grade-card-table">
+    <thead>
+      <tr>
+        <th>Subject Code</th>
+        <th>Subject Title</th>
+        <th>Credits</th>
+        <th>Internal</th>
+        <th>External</th>
+        <th>Total</th>
+        <th>Grade</th>
+        <th>Grade Point</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for sub in result.subject_results %}
+      <tr>
+        <td><strong><code>{{ sub.subject_code }}</code></strong></td>
+        <td>{{ sub.subject_name }}</td>
+        <td>{{ sub.credits }}</td>
+        <td>{{ sub.internal_marks }}</td>
+        <td>{{ sub.external_marks }}</td>
+        <td><strong>{{ sub.total }}</strong> / {{ sub.max_marks }}</td>
+        <td><span class="badge-grade grade-{{ sub.grade.replace('+', '-plus') }}">{{ sub.grade }}</span></td>
+        <td><strong>{{ sub.grade_point }}</strong></td>
+        <td style="color: {{ '#059669' if sub.status == 'Pass' else '#dc2626' }}; font-weight: 700;">{{ sub.status }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <!-- SUMMARY METRICS -->
+  <div class="grade-card-summary">
+    <div class="summary-metric">
+      <div class="val">{{ result.total_obtained }} / {{ result.total_max }}</div>
+      <div class="lbl">Total Marks Obtained</div>
+    </div>
+    <div class="summary-metric">
+      <div class="val" style="color: #059669;">{{ result.overall_percentage }}%</div>
+      <div class="lbl">Aggregate Percentage</div>
+    </div>
+    <div class="summary-metric">
+      <div class="val" style="color: #2563eb;">{{ result.sgpa }}</div>
+      <div class="lbl">SGPA (Semester GPA)</div>
+    </div>
+    <div class="summary-metric">
+      <div class="val" style="color: {{ '#059669' if result.overall_status == 'Pass' else '#dc2626' }};">
+        {{ result.overall_status }}
+      </div>
+      <div class="lbl">Final Outcome</div>
+    </div>
+  </div>
+
+  <div style="margin-top: 3rem; display: flex; justify-content: space-between; font-size: 0.82rem; color: #64748b;">
+    <div>Date of Issue: <strong>October 08, 2026</strong></div>
+    <div>Controller of Examinations Signature: _______________________</div>
+  </div>
+</div>
+{% else %}
+<div class="glass-card" style="text-align: center; padding: 3rem;">
+  <p style="color: var(--text-muted);">No result details available for this student.</p>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,133 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="card-header-flex">
+  <div>
+    <h1 style="font-size: 1.8rem; font-weight: 800;">Academic Dashboard</h1>
+    <p style="color: var(--text-muted); font-size: 0.9rem;">Overview of Class Performance and Result Analytics</p>
+  </div>
+  <div style="display: flex; gap: 10px;">
+    <a href="{{ url_for('export_csv') }}" class="btn btn-success"><i class="fa-solid fa-file-csv"></i> Export CSV Report</a>
+    <a href="{{ url_for('marks_entry') }}" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Enter Marks</a>
+  </div>
+</div>
+
+<!-- STATS CARDS GRID -->
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-icon icon-purple">
+      <i class="fa-solid fa-users"></i>
+    </div>
+    <div class="stat-info">
+      <div class="stat-value">{{ summary.total_students }}</div>
+      <div class="stat-label">Total Students Enrolled</div>
+    </div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-icon icon-cyan">
+      <i class="fa-solid fa-book-bookmark"></i>
+    </div>
+    <div class="stat-info">
+      <div class="stat-value">{{ summary.total_subjects }}</div>
+      <div class="stat-label">Subjects Evaluated</div>
+    </div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-icon icon-emerald">
+      <i class="fa-solid fa-square-check"></i>
+    </div>
+    <div class="stat-info">
+      <div class="stat-value">{{ summary.overall_pass_pct }}%</div>
+      <div class="stat-label">Overall Pass Rate ({{ summary.passed_students }}/{{ summary.total_students }})</div>
+    </div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-icon icon-amber">
+      <i class="fa-solid fa-chart-line"></i>
+    </div>
+    <div class="stat-info">
+      <div class="stat-value">{{ summary.avg_class_pct }}%</div>
+      <div class="stat-label">Class Mean Percentage</div>
+    </div>
+  </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem;">
+  <!-- TOP PERFORMERS TABLE -->
+  <div class="glass-card">
+    <div class="card-header-flex" style="margin-bottom: 1rem;">
+      <h3 class="card-title"><i class="fa-solid fa-trophy" style="color: #f59e0b;"></i> Top Performers (Rank 1 - 5)</h3>
+      <a href="{{ url_for('rank_list') }}" style="color: var(--accent-cyan); font-size: 0.85rem; text-decoration: none;">View All Ranks &rarr;</a>
+    </div>
+
+    <div class="table-responsive">
+      <table class="custom-table">
+        <thead>
+          <tr>
+            <th>Rank</th>
+            <th>Roll Number</th>
+            <th>Student Name</th>
+            <th>Total</th>
+            <th>SGPA</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for student in top_5 %}
+          <tr>
+            <td>
+              {% if student.rank == 1 %}
+              <span class="badge badge-rank-1"><i class="fa-solid fa-crown"></i> Rank #1</span>
+              {% else %}
+              <strong style="color: #a5b4fc;">#{{ student.rank }}</strong>
+              {% endif %}
+            </td>
+            <td><code>{{ student.roll_no }}</code></td>
+            <td><strong>{{ student.name }}</strong></td>
+            <td>{{ student.total_obtained }} / {{ student.total_max }}</td>
+            <td><strong style="color: #67e8f9;">{{ student.sgpa }}</strong></td>
+            <td>
+              <span class="badge badge-{{ 'pass' if student.overall_status == 'Pass' else 'fail' }}">
+                {{ student.overall_status }}
+              </span>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- TOPPER HIGHLIGHT CARD -->
+  {% if summary.topper %}
+  <div class="glass-card" style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(139, 92, 246, 0.1)); border-color: rgba(99, 102, 241, 0.4);">
+    <div style="text-align: center; padding: 0.5rem 0;">
+      <div style="font-size: 3rem; color: #f59e0b; margin-bottom: 0.5rem;">
+        <i class="fa-solid fa-award"></i>
+      </div>
+      <div style="text-transform: uppercase; letter-spacing: 0.1em; font-size: 0.75rem; color: #a5b4fc; font-weight: 700;">Class Topper</div>
+      <h2 style="font-size: 1.5rem; color: white; margin: 0.5rem 0;">{{ summary.topper.name }}</h2>
+      <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1rem;">Roll No: <code>{{ summary.topper.roll_no }}</code></p>
+      
+      <div style="display: flex; justify-content: space-around; background: rgba(10, 14, 26, 0.6); padding: 1rem; border-radius: 12px; margin-bottom: 1.25rem;">
+        <div>
+          <div style="font-size: 1.4rem; font-weight: 800; color: #34d399;">{{ summary.topper.overall_percentage }}%</div>
+          <div style="font-size: 0.7rem; color: var(--text-muted);">PERCENTAGE</div>
+        </div>
+        <div>
+          <div style="font-size: 1.4rem; font-weight: 800; color: #67e8f9;">{{ summary.topper.sgpa }}</div>
+          <div style="font-size: 0.7rem; color: var(--text-muted);">SGPA</div>
+        </div>
+      </div>
+
+      <a href="{{ url_for('student_result', roll_no=summary.topper.roll_no) }}" class="btn btn-secondary btn-sm" style="width: 100%;">
+        <i class="fa-solid fa-eye"></i> View Full Grade Card
+      </a>
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

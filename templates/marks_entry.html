@@ -1,0 +1,97 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="card-header-flex">
+  <div>
+    <h1 style="font-size: 1.8rem; font-weight: 800;">Marks Entry Module</h1>
+    <p style="color: var(--text-muted); font-size: 0.9rem;">Input subject-wise internal and external examination scores with real-time validation</p>
+  </div>
+</div>
+
+<div class="glass-card">
+  <form action="{{ url_for('marks_entry') }}" method="GET" style="display: flex; gap: 1rem; align-items: flex-end; margin-bottom: 1.5rem;">
+    <div style="flex: 1;">
+      <label class="form-label"><i class="fa-solid fa-user-graduate"></i> Select Student for Evaluation</label>
+      <select name="student_id" class="form-control" onchange="this.form.submit()">
+        <option value="">-- Choose Student from Class List --</option>
+        {% for s in students %}
+        <option value="{{ s.student_id }}" {% if selected_student and selected_student.student_id == s.student_id %}selected{% endif %}>
+          {{ s.roll_no }} - {{ s.name }} ({{ s.branch }} Sem {{ s.semester }})
+        </option>
+        {% endfor %}
+      </select>
+    </div>
+    <button type="submit" class="btn btn-primary"><i class="fa-solid fa-arrow-right"></i> Load Form</button>
+  </form>
+
+  {% if selected_student %}
+  <div style="background: rgba(99, 102, 241, 0.1); border: 1px solid rgba(99, 102, 241, 0.3); border-radius: 12px; padding: 1.25rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center;">
+    <div>
+      <h3 style="font-size: 1.2rem; color: white;">Evaluating: <strong>{{ selected_student.name }}</strong></h3>
+      <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 2px;">
+        Roll No: <code>{{ selected_student.roll_no }}</code> | Branch: {{ selected_student.branch }} | Semester: {{ selected_student.semester }}
+      </p>
+    </div>
+    <a href="{{ url_for('student_result', roll_no=selected_student.roll_no) }}" class="btn btn-secondary btn-sm" target="_blank">
+      <i class="fa-solid fa-id-card"></i> View Current Grade Card
+    </a>
+  </div>
+
+  <form action="{{ url_for('save_marks') }}" method="POST">
+    <input type="hidden" name="student_id" value="{{ selected_student.student_id }}">
+    
+    <div class="table-responsive" style="margin-bottom: 1.5rem;">
+      <table class="custom-table">
+        <thead>
+          <tr>
+            <th>Subject Code</th>
+            <th>Subject Name</th>
+            <th>Internal (Max 30)</th>
+            <th>External (Max 70)</th>
+            <th>Total Marks (100)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for sub in subjects %}
+          {% set m = existing_marks.get(sub.subject_code, {}) %}
+          <tr>
+            <td><code style="color: #67e8f9; font-weight: 700;">{{ sub.subject_code }}</code></td>
+            <td><strong>{{ sub.subject_name }}</strong> <span style="font-size: 0.75rem; color: var(--text-muted);">({{ sub.credits }} Credits)</span></td>
+            <td>
+              <input type="number" name="internal_{{ sub.subject_code }}" 
+                     class="form-control marks-input internal-input" 
+                     value="{{ m.internal_marks if m else 0 }}" 
+                     min="0" max="{{ sub.internal_max }}" required style="width: 110px;">
+            </td>
+            <td>
+              <input type="number" name="external_{{ sub.subject_code }}" 
+                     class="form-control marks-input external-input" 
+                     value="{{ m.external_marks if m else 0 }}" 
+                     min="0" max="{{ sub.external_max }}" required style="width: 110px;">
+            </td>
+            <td>
+              <span class="total-marks-span" style="font-size: 1.1rem; font-weight: 800; color: #a5b4fc;">
+                {{ m.total if m else 0 }}
+              </span> / {{ sub.max_marks }}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div style="display: flex; justify-content: flex-end; gap: 12px;">
+      <a href="{{ url_for('manage_students') }}" class="btn btn-secondary">Cancel</a>
+      <button type="submit" class="btn btn-success" style="padding: 0.75rem 2rem;">
+        <i class="fa-solid fa-floppy-disk"></i> Save & Recalculate Result
+      </button>
+    </div>
+  </form>
+  {% else %}
+  <div style="text-align: center; padding: 3rem; color: var(--text-muted);">
+    <i class="fa-solid fa-pen-to-square" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+    <p>Please select a student from the dropdown above to enter or update examination marks.</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

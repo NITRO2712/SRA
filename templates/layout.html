@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Result Analyzer | AKGEC</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="{{ url_for('index') }}" class="brand">
+        <div class="brand-icon">
+          <i class="fa-solid fa-graduation-cap"></i>
+        </div>
+        <div>
+          <div class="brand-title">Result Analyzer</div>
+          <div class="brand-subtitle">AKGEC • Dept of CSE</div>
+        </div>
+      </a>
+
+      {% if current_user %}
+      <ul class="nav-links">
+        {% if user_role in ['admin', 'teacher'] %}
+        <li><a href="{{ url_for('dashboard') }}" class="nav-link {% if request.endpoint == 'dashboard' %}active{% endif %}"><i class="fa-solid fa-chart-pie"></i> Dashboard</a></li>
+        <li><a href="{{ url_for('manage_students') }}" class="nav-link {% if request.endpoint == 'manage_students' %}active{% endif %}"><i class="fa-solid fa-users"></i> Students</a></li>
+        <li><a href="{{ url_for('manage_subjects') }}" class="nav-link {% if request.endpoint == 'manage_subjects' %}active{% endif %}"><i class="fa-solid fa-book"></i> Subjects</a></li>
+        <li><a href="{{ url_for('marks_entry') }}" class="nav-link {% if request.endpoint == 'marks_entry' %}active{% endif %}"><i class="fa-solid fa-pen-to-square"></i> Marks Entry</a></li>
+        {% endif %}
+        
+        <li><a href="{{ url_for('rank_list') }}" class="nav-link {% if request.endpoint == 'rank_list' %}active{% endif %}"><i class="fa-solid fa-trophy"></i> Rank List</a></li>
+        <li><a href="{{ url_for('analysis') }}" class="nav-link {% if request.endpoint == 'analysis' %}active{% endif %}"><i class="fa-solid fa-chart-line"></i> Analytics</a></li>
+        <li><a href="{{ url_for('student_result') }}" class="nav-link {% if request.endpoint == 'student_result' %}active{% endif %}"><i class="fa-solid fa-id-card"></i> Grade Card</a></li>
+      </ul>
+
+      <div class="user-pill">
+        <i class="fa-solid fa-circle-user"></i>
+        <span>{{ current_user }}</span>
+        <span class="user-badge">{{ user_role }}</span>
+        <a href="{{ url_for('logout') }}" class="btn-logout" title="Logout"><i class="fa-solid fa-right-from-bracket"></i></a>
+      </div>
+      {% else %}
+      <div class="user-pill">
+        <a href="{{ url_for('login') }}" class="btn btn-primary btn-sm"><i class="fa-solid fa-right-to-bracket"></i> Login</a>
+      </div>
+      {% endif %}
+    </div>
+  </nav>
+
+  <!-- MAIN WRAPPER -->
+  <main class="main-wrapper">
+    <!-- FLASH ALERTS -->
+    <div class="alert-container">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">
+              <span><i class="fa-solid fa-info-circle"></i> {{ message }}</span>
+              <button class="alert-close" onclick="this.parentElement.remove()">&times;</button>
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+    </div>
+
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="footer">
+    <p>Student Result Analyzer &copy; 2026 • Designed & Developed by <strong>Rana Aman Singh</strong> (Roll: 2500270120126)</p>
+    <p style="margin-top: 4px; font-size: 0.78rem;">Guided by Ms. Khusboo Malivya • Dept. of Computer Science & Engineering, AKGEC Ghaziabad</p>
+  </footer>
+
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

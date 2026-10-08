@@ -1,0 +1,85 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="card-header-flex">
+  <div>
+    <h1 style="font-size: 1.8rem; font-weight: 800;">Class Rank List & Standings</h1>
+    <p style="color: var(--text-muted); font-size: 0.9rem;">Automated merit order calculated by total marks and SGPA</p>
+  </div>
+  <div style="display: flex; gap: 10px;">
+    <a href="{{ url_for('export_csv') }}" class="btn btn-success"><i class="fa-solid fa-file-csv"></i> Download CSV</a>
+  </div>
+</div>
+
+<!-- FILTER TABS -->
+<div class="glass-card" style="padding: 1rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+  <div style="display: flex; gap: 8px;">
+    <a href="{{ url_for('rank_list', status='all') }}" class="btn btn-sm {% if filter_status == 'all' %}btn-primary{% else %}btn-secondary{% endif %}">All Students</a>
+    <a href="{{ url_for('rank_list', status='pass') }}" class="btn btn-sm {% if filter_status == 'pass' %}btn-success{% else %}btn-secondary{% endif %}">Passed Only</a>
+    <a href="{{ url_for('rank_list', status='fail') }}" class="btn btn-sm {% if filter_status == 'fail' %}btn-danger{% else %}btn-secondary{% endif %}">Failed / Re-appear</a>
+  </div>
+  <div style="font-size: 0.85rem; color: var(--text-muted);">
+    Showing <strong>{{ results|length }}</strong> record(s)
+  </div>
+</div>
+
+<!-- RANK LIST TABLE -->
+<div class="glass-card">
+  <div class="table-responsive">
+    <table class="custom-table">
+      <thead>
+        <tr>
+          <th>Rank</th>
+          <th>Roll Number</th>
+          <th>Student Name</th>
+          <th>Branch</th>
+          <th>Semester</th>
+          <th>Total Marks</th>
+          <th>Percentage</th>
+          <th>SGPA</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for s in results %}
+        <tr>
+          <td>
+            {% if s.rank == 1 %}
+            <span class="badge badge-rank-1"><i class="fa-solid fa-crown"></i> Rank #1</span>
+            {% elif s.rank == 2 %}
+            <span class="badge" style="background: linear-gradient(135deg, #94a3b8, #64748b); color: white;">Rank #2</span>
+            {% elif s.rank == 3 %}
+            <span class="badge" style="background: linear-gradient(135deg, #b45309, #78350f); color: white;">Rank #3</span>
+            {% else %}
+            <strong style="color: #a5b4fc; padding-left: 8px;">#{{ s.rank }}</strong>
+            {% endif %}
+          </td>
+          <td><code>{{ s.roll_no }}</code></td>
+          <td><strong>{{ s.name }}</strong></td>
+          <td>{{ s.branch }}</td>
+          <td>Sem {{ s.semester }}</td>
+          <td><strong>{{ s.total_obtained }}</strong> / {{ s.total_max }}</td>
+          <td><strong style="color: #a5b4fc;">{{ s.overall_percentage }}%</strong></td>
+          <td><strong style="color: #67e8f9;">{{ s.sgpa }}</strong></td>
+          <td>
+            <span class="badge badge-{{ 'pass' if s.overall_status == 'Pass' else 'fail' }}">
+              {{ s.overall_status }}
+            </span>
+          </td>
+          <td>
+            <a href="{{ url_for('student_result', roll_no=s.roll_no) }}" class="btn btn-secondary btn-sm" title="View Grade Card">
+              <i class="fa-solid fa-eye"></i> Grade Card
+            </a>
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="10" style="text-align: center; color: var(--text-muted); padding: 2rem;">No students match the selected filter.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

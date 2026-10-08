@@ -1,0 +1,73 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="card-header-flex">
+  <div>
+    <h1 style="font-size: 1.8rem; font-weight: 800;">Subject Analytics & Performance</h1>
+    <p style="color: var(--text-muted); font-size: 0.9rem;">Subject-wise average, highest/lowest scores, pass percentages, and grade breakdown</p>
+  </div>
+</div>
+
+<!-- SUBJECT STATS TABLE -->
+<div class="glass-card">
+  <h3 class="card-title" style="margin-bottom: 1rem;"><i class="fa-solid fa-table-list" style="color: var(--accent-cyan);"></i> Subject Summary Metrics</h3>
+  <div class="table-responsive">
+    <table class="custom-table">
+      <thead>
+        <tr>
+          <th>Subject Code</th>
+          <th>Subject Name</th>
+          <th>Appeared</th>
+          <th>Passed</th>
+          <th>Pass Rate</th>
+          <th>Class Avg Marks</th>
+          <th>Highest Score</th>
+          <th>Lowest Score</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for sub in subject_stats %}
+        <tr>
+          <td><code style="color: #67e8f9; font-weight: 700;">{{ sub.subject_code }}</code></td>
+          <td><strong>{{ sub.subject_name }}</strong></td>
+          <td>{{ sub.appeared_count }}</td>
+          <td><strong style="color: #34d399;">{{ sub.passed_count }}</strong></td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div style="flex: 1; height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden; width: 60px;">
+                <div style="width: {{ sub.pass_percentage }}%; height: 100%; background: var(--accent-emerald);"></div>
+              </div>
+              <strong style="font-size: 0.85rem;">{{ sub.pass_percentage }}%</strong>
+            </div>
+          </td>
+          <td><strong style="color: #a5b4fc;">{{ sub.avg_marks }}</strong> / {{ sub.max_possible }}</td>
+          <td><span class="badge" style="background: rgba(16, 185, 129, 0.2); color: #6ee7b7;">{{ sub.highest_marks }}</span></td>
+          <td><span class="badge" style="background: rgba(244, 63, 94, 0.2); color: #fca5a5;">{{ sub.lowest_marks }}</span></td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="8" style="text-align: center; color: var(--text-muted); padding: 2rem;">No data available for subject analysis.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- CHART.JS GRAPHS -->
+<div class="charts-grid">
+  <div class="glass-card">
+    <h3 class="card-title" style="margin-bottom: 1rem;"><i class="fa-solid fa-chart-column" style="color: var(--accent-primary);"></i> Subject Marks Comparison (Avg vs Highest)</h3>
+    <div class="chart-container">
+      <canvas id="subjectAvgChart"></canvas>
+    </div>
+  </div>
+
+  <div class="glass-card">
+    <h3 class="card-title" style="margin-bottom: 1rem;"><i class="fa-solid fa-chart-pie" style="color: var(--accent-secondary);"></i> Grade Distribution Breakdown</h3>
+    <div class="chart-container">
+      <canvas id="gradeDistChart"></canvas>
+    </div>
+  </div>
+</div>
+{% endblock %}
