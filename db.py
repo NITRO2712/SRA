@@ -1,14 +1,23 @@
 import sys
 import os
-sys.path.insert(0, r'D:\Lib\site-packages')
+
+# Ensure site-packages path if present
+if os.path.exists(r'D:\Lib\site-packages'):
+    sys.path.insert(0, r'D:\Lib\site-packages')
 sys.path.insert(0, os.path.dirname(__file__))
 
 import sqlite3
 from werkzeug.security import generate_password_hash
 
-DB_PATH = os.path.join(os.path.dirname(__file__), 'student_results.db')
+# Support custom environment variable for database path (e.g., Render persistent disks)
+DB_PATH = os.environ.get('DATABASE_PATH', os.path.join(os.path.dirname(__file__), 'student_results.db'))
 
 def get_db_connection():
+    # Ensure directory exists if custom path provided
+    db_dir = os.path.dirname(DB_PATH)
+    if db_dir and not os.path.exists(db_dir):
+        os.makedirs(db_dir, exist_ok=True)
+        
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA foreign_keys = ON")
@@ -129,24 +138,15 @@ def seed_data():
                 (roll, generate_password_hash('student123'), 'student')
             )
             
-        # Sample Marks data for realistic distribution
-        # (internal <= 30, external <= 70)
+        # Sample Marks data
         marks_data = [
-            # Rana Aman Singh (Topper)
             [ (student_ids[0], 'KCS-401', 28, 65), (student_ids[0], 'KCS-402', 29, 66), (student_ids[0], 'KCS-403', 27, 64), (student_ids[0], 'KCS-404', 30, 68), (student_ids[0], 'KCS-405', 29, 67) ],
-            # Aarav Sharma
             [ (student_ids[1], 'KCS-401', 25, 58), (student_ids[1], 'KCS-402', 26, 60), (student_ids[1], 'KCS-403', 24, 55), (student_ids[1], 'KCS-404', 27, 62), (student_ids[1], 'KCS-405', 28, 63) ],
-            # Ananya Gupta
             [ (student_ids[2], 'KCS-401', 26, 62), (student_ids[2], 'KCS-402', 28, 64), (student_ids[2], 'KCS-403', 25, 59), (student_ids[2], 'KCS-404', 28, 65), (student_ids[2], 'KCS-405', 29, 66) ],
-            # Rohan Verma
             [ (student_ids[3], 'KCS-401', 20, 42), (student_ids[3], 'KCS-402', 22, 45), (student_ids[3], 'KCS-403', 18, 38), (student_ids[3], 'KCS-404', 21, 48), (student_ids[3], 'KCS-405', 23, 50) ],
-            # Priya Patel (1 fail in KCS-401)
             [ (student_ids[4], 'KCS-401', 10, 20), (student_ids[4], 'KCS-402', 18, 35), (student_ids[4], 'KCS-403', 16, 30), (student_ids[4], 'KCS-404', 20, 42), (student_ids[4], 'KCS-405', 21, 45) ],
-            # Vikram Malhotra
             [ (student_ids[5], 'KCS-401', 22, 50), (student_ids[5], 'KCS-402', 24, 53), (student_ids[5], 'KCS-403', 21, 49), (student_ids[5], 'KCS-404', 23, 54), (student_ids[5], 'KCS-405', 25, 56) ],
-            # Sneha Kapoor
             [ (student_ids[6], 'KCS-401', 27, 63), (student_ids[6], 'KCS-402', 28, 65), (student_ids[6], 'KCS-403', 26, 61), (student_ids[6], 'KCS-404', 29, 66), (student_ids[6], 'KCS-405', 28, 64) ],
-            # Aditya Singh
             [ (student_ids[7], 'KCS-401', 18, 40), (student_ids[7], 'KCS-402', 19, 42), (student_ids[7], 'KCS-403', 17, 39), (student_ids[7], 'KCS-404', 22, 49), (student_ids[7], 'KCS-405', 20, 46) ],
         ]
         
