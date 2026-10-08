@@ -1,7 +1,7 @@
 import sys
 import os
 
-# Ensure site-packages path if present
+# Ensure site-packages path if present (for local environment)
 if os.path.exists(r'D:\Lib\site-packages'):
     sys.path.insert(0, r'D:\Lib\site-packages')
 sys.path.insert(0, os.path.dirname(__file__))
@@ -13,12 +13,25 @@ from werkzeug.security import generate_password_hash
 DB_PATH = os.environ.get('DATABASE_PATH', os.path.join(os.path.dirname(__file__), 'student_results.db'))
 
 def get_db_connection():
-    # Ensure directory exists if custom path provided
+    global DB_PATH
     db_dir = os.path.dirname(DB_PATH)
+    
+    # Try creating directory if specified (e.g., /var/data)
     if db_dir and not os.path.exists(db_dir):
-        os.makedirs(db_dir, exist_ok=True)
-        
-    conn = sqlite3.connect(DB_PATH)
+        try:
+            os.makedirs(db_dir, exist_ok=True)
+        except (PermissionError, OSError):
+            # Fallback to local project directory if /var/data is not writable
+            DB_PATH = os.path.join(os.path.dirname(__file__), 'student_results.db')
+            
+    try:
+        conn = sqlite3.connect(DB_PATH)
+    except (PermissionError, sqlite3.OperationalError):
+        # Additional fallback to /tmp or local dir if file creation fails
+        fallback_dir = '/tmp' if os.name != 'nt' and os.path.exists('/tmp') else os.path.dirname(__file__)
+        DB_PATH = os.path.join(fallback_dir, 'student_results.db')
+        conn = sqlite3.connect(DB_PATH)
+
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA foreign_keys = ON")
     return conn
